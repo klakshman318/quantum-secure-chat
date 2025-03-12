@@ -1,4 +1,4 @@
-name: Quantum Secure Chat CI
+name: Quantum Secure Chat CI/CD
 
 on:
   push:
@@ -7,6 +7,8 @@ on:
   pull_request:
     branches:
       - master
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -21,13 +23,57 @@ jobs:
       with:
         python-version: '3.11'
 
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libomp-dev
+
     - name: Install Dependencies
       run: |
         python -m venv venv
         source venv/bin/activate
+        pip install --upgrade pip
         pip install -r requirements.txt
+        pip install qiskit-aer
 
-    - name: Run Quantum Secure Chat Script (Sanity Check)
+    - name: Run Tests
       run: |
         source venv/bin/activate
-        python quantum_secure_chat.py
+        pytest tests/
+
+    - name: Security Audit
+      run: |
+        pip install safety
+        safety check --full-report
+
+    - name: Format Python Code
+      run: |
+        pip install black
+        black --check .
+
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      run: |
+        mkdir -p docs
+        echo "<h1>Quantum Secure Chat</h1><p>This is a GitHub Pages deployment for the project.</p>" > docs/index.html
+        git config --global user.email "github-actions@github.com"
+        git config --global user.name "github-actions"
+        git add docs/
+        git commit -m "Deploy to GitHub Pages"
+        git push origin main
+
+    - name: Notify Slack on Failure
+      if: failure()
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_MESSAGE: "🚨 Build Failed! Fix Required!"
+
+    - name: Create GitHub Release
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref }}
+        name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
