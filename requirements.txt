@@ -14,3 +14,4 @@ stevedore==5.4.1
 symengine==0.13.0
 sympy==1.13.3
 typing_extensions==4.12.2
+qiskit-aer
