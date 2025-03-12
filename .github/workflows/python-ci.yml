@@ -26,7 +26,7 @@ jobs:
     - name: Install System Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libomp-dev
+        sudo apt-get install -y libomp-dev cmake
 
     - name: Install Dependencies
       run: |
@@ -57,7 +57,7 @@ jobs:
         black --check .
 
     - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/master'
       run: |
         mkdir -p docs
         echo "<h1>Quantum Secure Chat</h1><p>This is a GitHub Pages deployment for the project.</p>" > docs/index.html
@@ -65,7 +65,7 @@ jobs:
         git config --global user.name "github-actions"
         git add docs/
         git commit -m "Deploy to GitHub Pages"
-        git push origin main
+        git push origin master
 
     - name: Notify Slack on Failure
       if: failure()
