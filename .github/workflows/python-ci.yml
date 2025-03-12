@@ -34,11 +34,12 @@ jobs:
         source venv/bin/activate
         pip install --upgrade pip
         pip install -r requirements.txt
-        pip install qiskit-aer pytest  # Ensure pytest is installed inside venv
+        pip install qiskit-aer pytest  # pytest is installed inside venv
 
     - name: Run Tests
       run: |
         source venv/bin/activate
+        export PYTHONPATH=$PYTHONPATH:$(pwd)  # project root to Python path
         if [ -d "tests" ] && [ "$(ls -A tests)" ]; then
           pytest tests/
         else

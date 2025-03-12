@@ -5,15 +5,15 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import base64
 
-# Function to generate random bits (Alice's raw key)
+# generate random bits (alice's raw key)
 def generate_random_bits(length):
     return np.random.randint(2, size=length)
 
-# Function to generate random measurement bases
+# generate random measurement bases
 def generate_random_bases(length):
     return np.random.randint(2, size=length)
 
-# Prepare quantum states based on bits and bases
+# prepare quantum states based on bits and bases
 def prepare_qubits(bits, bases):
     qubits = []
     for bit, basis in zip(bits, bases):
@@ -25,7 +25,7 @@ def prepare_qubits(bits, bases):
         qubits.append(qc)
     return qubits
 
-# Simulate Bob's measurement of qubits
+# simulate bob's measurement of qubits
 def measure_qubits(qubits, bases):
     results = []
     simulator = Aer.get_backend('aer_simulator')
@@ -38,13 +38,13 @@ def measure_qubits(qubits, bases):
         results.append(int(result))
     return np.array(results)
 
-# Alice and Bob sift the key by comparing bases
+# alice and bob sift the key by comparing bases
 def sift_key(alice_bits, alice_bases, bob_results, bob_bases):
     matching_indices = np.where(alice_bases == bob_bases)[0]
     key = alice_bits[matching_indices]  
     return key
 
-# Generate 128-bit key from Quantum Key Distribution
+# generate 128-bit key from quantum key distribution
 def generate_qkd_key(num_bits=128):
     alice_bits = generate_random_bits(num_bits)
     alice_bases = generate_random_bases(num_bits)
@@ -60,7 +60,7 @@ def generate_qkd_key(num_bits=128):
     print(f"\n🔑 Shared Quantum Key (AES-128 Compatible): {key_bytes.hex()}")
     return key_bytes
 
-# Function to encrypt messages using AES-GCM
+# encrypt messages using AES-GCM
 def encrypt_message(message, key):
     iv = os.urandom(12)
     cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
@@ -72,7 +72,7 @@ def encrypt_message(message, key):
     encrypted_data = base64.b64encode(iv + tag + ciphertext).decode()
     return encrypted_data
 
-# Function to decrypt messages using AES-GCM
+# decrypt messages using AES-GCM
 def decrypt_message(encrypted_data, key):
     decoded_data = base64.b64decode(encrypted_data)
     
@@ -86,11 +86,11 @@ def decrypt_message(encrypted_data, key):
     
     return decrypted_message.decode()
 
-# Generate Quantum-Secure AES Key
+# generate quantum-secure AES key
 quantum_key = generate_qkd_key()
 
-# Secure Quantum Messaging Test
-alice_message = "Hello Bob! This is a quantum-secure message."
+# secure quantum messaging test
+alice_message = "Hello Lakshman! This is a quantum-secure message."
 encrypted_msg = encrypt_message(alice_message, quantum_key)
 decrypted_msg = decrypt_message(encrypted_msg, quantum_key)
 
